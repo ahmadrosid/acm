@@ -39,8 +39,9 @@ func commitChanges(diff string) {
 			"# Write a commit message describing the changes and the reasoning behind them",
 			"git commit -F- <<EOF",
 		},
-		MaxTokens: gpt3.IntPtr(2049),
-		Stop:      []string{"\n"},
+		MaxTokens:   gpt3.IntPtr(2000),
+		Temperature: gpt3.Float32Ptr(0.0),
+		Stop:        []string{"EOF"},
 	})
 	if err != nil {
 		panic(err)
@@ -60,6 +61,7 @@ func commitChanges(diff string) {
 	fmt.Print("Do you want to continue ? (y/n): ")
 	fmt.Scanln(&input)
 	if input != "y" {
+		log.Fatalln("Aborted!")
 		return
 	}
 	_, err = command.ExecCmd("git", "commit", "-m", commitMessage)
