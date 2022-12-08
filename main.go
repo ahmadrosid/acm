@@ -33,9 +33,11 @@ func commitChanges(diff string) {
 	client := gpt3.NewClient(apiKey)
 	resp, err := client.CompletionWithEngine(ctx, "code-davinci-002", gpt3.CompletionRequest{
 		Prompt: []string{
+			"git diff HEAD\\^!",
 			diff,
-			"Write a commit message for the following changes:",
-			"git commit -m '",
+			"",
+			"# Write a commit message describing the changes and the reasoning behind them",
+			"git commit -F- <<EOF",
 		},
 		MaxTokens: gpt3.IntPtr(2049),
 		Stop:      []string{"\n"},
