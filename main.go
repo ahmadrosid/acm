@@ -31,22 +31,33 @@ func commitChanges(diff string) {
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	ctx := context.Background()
 	client := gpt3.NewClient(apiKey)
-	resp, err := client.CompletionWithEngine(ctx, gpt3.CompletionRequest{
+	resp, err := client.CompletionWithEngine(ctx, "code-davinci-002", gpt3.CompletionRequest{
 		Prompt: []string{
-			"git diff HEAD^!",
+			"```",
 			diff,
-			"# Write a commit message describing the changes and the reasoning behind them\ngit commit -F- <<EOF",
+			"```",
+			"Write a commit message for the following changes:",
+			"git commit -m '",
 		},
-		MaxTokens: gpt3.IntPtr(200),
-		Stop:      []string{"."},
-		Echo:      true,
+		MaxTokens: gpt3.IntPtr(4097),
+		Stop:      []string{"\n"},
 	})
+	if err != nil {
+		panic(err)
+	}
+
 	if err != nil {
 		log.Fatalln(err)
 	}
 	println(strings.Repeat("-", command.GetCmdWidth()), "\n")
-	fmt.Println(resp.Choices[0].Text)
+	commitMessage := strings.TrimSpace(resp.Choices[0].Text)
+	fmt.Println(commitMessage)
 	println(strings.Repeat("-", command.GetCmdWidth()))
+
+	_, err = command.ExecCmd("git", "commit", "-m", commitMessage)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func executeAutoCommit() {
