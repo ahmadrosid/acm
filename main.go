@@ -27,6 +27,11 @@ func printVersion() {
 }
 
 func commitChanges(diff string) {
+	fmt.Println([]string{
+		"git diff HEAD\\^!",
+		diff,
+		"# Write a commit message describing the changes and the reasoning behind them\ngit commit -F- <<EOF",
+	})
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	ctx := context.Background()
 	client := gpt3.NewClient(apiKey)
@@ -62,6 +67,7 @@ func executeAutoCommit() {
 				if err != nil {
 					log.Fatal(err)
 				}
+				commitChanges(command.GetStagedFiles())
 			}
 		}
 	} else {
