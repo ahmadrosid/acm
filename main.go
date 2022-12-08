@@ -33,13 +33,11 @@ func commitChanges(diff string) {
 	client := gpt3.NewClient(apiKey)
 	resp, err := client.CompletionWithEngine(ctx, "code-davinci-002", gpt3.CompletionRequest{
 		Prompt: []string{
-			"```",
 			diff,
-			"```",
 			"Write a commit message for the following changes:",
 			"git commit -m '",
 		},
-		MaxTokens: gpt3.IntPtr(4097),
+		MaxTokens: gpt3.IntPtr(2049),
 		Stop:      []string{"\n"},
 	})
 	if err != nil {
@@ -49,11 +47,19 @@ func commitChanges(diff string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	println("You commit message!")
 	println(strings.Repeat("-", command.GetCmdWidth()), "\n")
 	commitMessage := strings.TrimSpace(resp.Choices[0].Text)
 	fmt.Println(commitMessage)
 	println(strings.Repeat("-", command.GetCmdWidth()))
 
+	var input string
+	fmt.Print("Do you want to continue ? (y/n): ")
+	fmt.Scanln(&input)
+	if input != "y" {
+		return
+	}
 	_, err = command.ExecCmd("git", "commit", "-m", commitMessage)
 	if err != nil {
 		log.Fatalln(err)
