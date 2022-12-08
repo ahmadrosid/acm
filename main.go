@@ -31,13 +31,13 @@ func commitChanges(diff string) {
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	ctx := context.Background()
 	client := gpt3.NewClient(apiKey)
-	resp, err := client.CompletionWithEngine(ctx, "code-davinci-002", gpt3.CompletionRequest{
+	resp, err := client.CompletionWithEngine(ctx, gpt3.CompletionRequest{
 		Prompt: []string{
 			"git diff HEAD^!",
 			diff,
 			"# Write a commit message describing the changes and the reasoning behind them\ngit commit -F- <<EOF",
 		},
-		MaxTokens: gpt3.IntPtr(2000),
+		MaxTokens: gpt3.IntPtr(200),
 		Stop:      []string{"."},
 		Echo:      true,
 	})
@@ -60,13 +60,14 @@ func executeAutoCommit() {
 			fmt.Println("File changes exist in your git repo, but you have not added them to git.")
 			fmt.Print("Do you want to execute `git add .` ? (y/n): ")
 			fmt.Scanln(&input)
-			if input == "y" {
-				_, err := command.GitAddAll()
-				if err != nil {
-					log.Fatal(err)
-				}
-				commitChanges(command.GetStagedFiles())
+			if input != "y" {
+				return
 			}
+			_, err := command.GitAddAll()
+			if err != nil {
+				log.Fatal(err)
+			}
+			commitChanges(command.GetStagedFiles())
 		}
 	} else {
 		commitChanges(res)
