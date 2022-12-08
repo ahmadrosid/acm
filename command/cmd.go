@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"log"
 	"os/exec"
+
+	"golang.org/x/term"
 )
 
 func ExecCmd(cmd ...string) (string, error) {
@@ -37,4 +39,12 @@ func GetStagedFiles() string {
 		log.Panic(err.Error())
 	}
 	return res
+}
+
+func GetCmdWidth() int {
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		return 20
+	}
+	return width
 }

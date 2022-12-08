@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/PullRequestInc/go-gpt3"
 	"github.com/ahmadrosid/acm/command"
@@ -27,17 +28,12 @@ func printVersion() {
 }
 
 func commitChanges(diff string) {
-	fmt.Println([]string{
-		"git diff HEAD\\^!",
-		diff,
-		"# Write a commit message describing the changes and the reasoning behind them\ngit commit -F- <<EOF",
-	})
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	ctx := context.Background()
 	client := gpt3.NewClient(apiKey)
 	resp, err := client.CompletionWithEngine(ctx, "code-davinci-002", gpt3.CompletionRequest{
 		Prompt: []string{
-			"git diff HEAD\\^!",
+			"git diff HEAD^!",
 			diff,
 			"# Write a commit message describing the changes and the reasoning behind them\ngit commit -F- <<EOF",
 		},
@@ -48,7 +44,9 @@ func commitChanges(diff string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	println(strings.Repeat("-", command.GetCmdWidth()), "\n")
 	fmt.Println(resp.Choices[0].Text)
+	println(strings.Repeat("-", command.GetCmdWidth()))
 }
 
 func executeAutoCommit() {
