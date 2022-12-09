@@ -48,3 +48,18 @@ func GetCmdWidth() int {
 	}
 	return width
 }
+
+func CommitChanges(message string) (string, error) {
+	res := exec.Command("git", "commit", "-F", "-")
+	var stdin bytes.Buffer
+	stdin.Write([]byte(message))
+	var stdout bytes.Buffer
+	res.Stdout = &stdout
+	res.Stdin = &stdin
+	err := res.Run()
+	if err != nil {
+		return "", err
+	}
+
+	return stdout.String(), nil
+}

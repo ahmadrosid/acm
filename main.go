@@ -1,14 +1,13 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/PullRequestInc/go-gpt3"
 	"github.com/ahmadrosid/acm/command"
+	"github.com/ahmadrosid/acm/gpt3"
 	"github.com/joho/godotenv"
 )
 
@@ -28,31 +27,20 @@ func printVersion() {
 }
 
 func commitChanges(diff string) {
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	ctx := context.Background()
-	client := gpt3.NewClient(apiKey)
-	resp, err := client.CompletionWithEngine(ctx, "code-davinci-002", gpt3.CompletionRequest{
-		Prompt: []string{
-			"git diff HEAD\\^!",
-			diff,
-			"",
-			"# Write a commit message describing the changes and the reasoning behind them",
-			"git commit -F- <<EOF",
-		},
-		MaxTokens:   gpt3.IntPtr(2000),
-		Temperature: gpt3.Float32Ptr(0.0),
-		Stop:        []string{"EOF"},
-	})
-	if err != nil {
-		panic(err)
-	}
-
+	prompt := strings.Join([]string{
+		"git diff HEAD\\^!",
+		diff,
+		"",
+		"# Write a commit message describing the changes and the reasoning behind them",
+		"git commit -F- <<EOF",
+	}, "\n")
+	resp, err := gpt3.RequestCompletion(prompt)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	println("You commit message!")
-	println(strings.Repeat("-", command.GetCmdWidth()), "\n")
+	println("The proposed commit message!")
+	println(strings.Repeat("-", command.GetCmdWidth()))
 	commitMessage := strings.TrimSpace(resp.Choices[0].Text)
 	fmt.Println(commitMessage)
 	println(strings.Repeat("-", command.GetCmdWidth()))
@@ -64,7 +52,7 @@ func commitChanges(diff string) {
 		log.Fatalln("Aborted!")
 		return
 	}
-	_, err = command.ExecCmd("git", "commit", "-m", commitMessage)
+	_, err = command.CommitChanges(commitMessage)
 	if err != nil {
 		log.Fatalln(err)
 	}

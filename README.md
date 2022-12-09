@@ -1,6 +1,6 @@
 # acm
 
-Auto commit your git changes using OpenAI GPT-3.
+Stop thinking about commit message. Let OpenAI GPT-3 handle your commit message, and auto-commit your git changes.
 
 ## Install
 
