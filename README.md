@@ -2,6 +2,12 @@
 
 Auto commit your git changes using OpenAI GPT-3.
 
+## Install
+
+```bash
+go install https://github.com/ahmadrosid/acm.git
+```
+
 ## Usage
 
 ```bash
