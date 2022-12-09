@@ -29,8 +29,8 @@ Do you want to continue ? (y/n): y
 ```
 
 ## ENV
-Add this env manually.
+Add this env manually `OPENAI_API_KEY` :
 
 ```
-OPENAI_API_KEY=
+export OPENAI_API_KEY="..."
 ```
