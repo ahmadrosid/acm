@@ -15,6 +15,19 @@ git add .
 acm
 ```
 
+Example result:
+```bash
+$ acm
+
+The proposed commit message!
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Add post about setup macos for laravel development
+
+This post is about how to setup macos for laravel development.
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Do you want to continue ? (y/n): y
+```
+
 ## ENV
 Add this env manually.
 
